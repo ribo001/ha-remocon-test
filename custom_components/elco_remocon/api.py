@@ -776,7 +776,7 @@ class RemoconClient:
             cooling_active=cooling_active,
             heat_or_cool_request=_optional_bool(request_value),
             outside_temp=number("OutsideTemp"),
-            dhw_temp=number("DhwStorageTemperature"),
+            dhw_temp=number("DhwTemp"),
             dhw_comfort_temp=_optional_temperature(value("DhwTimeProgComfortTemp")),
             dhw_reduced_temp=_optional_temperature(value("DhwTimeProgEconomyTemp")),
             dhw_mode=dhw_mode_val,
@@ -794,9 +794,7 @@ class RemoconClient:
             plant_mode=plant_mode,
             plant_mode_text=plant_mode_text,
             quiet_mode=quiet_mode,
-            heat_pump_on=(
-                boolean("IsHeatingPumpOn") if pump_value is not None else None
-            ),
+            heat_pump_on=heating_active,
             # No verified burner-state item is available for flat R2 gateways.
             flame_sensor=None,
             system_pressure=(
