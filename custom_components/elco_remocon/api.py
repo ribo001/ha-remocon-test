@@ -188,6 +188,13 @@ class RemoconData:
     # System (from v2 API)
     system_pressure: Optional[float] = None
     flow_temperature: Optional[float] = None
+    # Energy metering
+    energy_today: float | None = None
+    energy_yesterday: float | None = None
+    energy_month: float | None = None
+    energy_previous_month: float | None = None
+    energy_year: float | None = None
+    energy_previous_year: float | None = None
     # Meta
     has_room_sensor: bool = False
 
@@ -246,7 +253,85 @@ class RemoconClient:
         if self._session is None:
             self.login()
         return self._session  # type: ignore[return-value]
+        
+    def get_metering_data(self) -> dict[str, Any]:
+        """Read PlantMetering data."""
 
+        response = self._request(
+            "POST",
+            f"/R2/PlantMetering/GetData/{self._gateway_id}",
+            json={
+                "features": self._flat_features(),
+                "hasCooling": False,
+            },
+        )
+
+    if not isinstance(response, dict):
+        raise RemoconDataError(
+            "Invalid metering response"
+        )
+
+    return response
+@staticmethod
+    def _meter_donut_value(
+        metering: dict,
+        period: str,
+        ) -> float | None:
+
+        try:
+            data = metering["data"]["asKwhRaw"]["donutData"]
+
+            for item in data:
+
+                if (
+                    item.get("tab")
+                    == "ConsumedElectricity"
+                    and item.get("period")
+                    == period
+                ):
+                    return float(item["value"])
+
+        except Exception:
+            pass
+
+        return None
+        @staticmethod
+    def _meter_histogram_total(
+        metering: dict,
+        period: str,
+    ) -> float | None:
+
+        try:
+            histograms = (
+                metering["data"]
+                ["asKwhRaw"]
+                ["histogramData"]
+            )
+
+            for item in histograms:
+
+                if (
+                    item.get("tab")
+                    == "ConsumedElectricity"
+                    and item.get("period")
+                    == period
+                    and item.get("series")
+                    == "Heating"
+                ):
+
+                    return round(
+                        sum(
+                            point["y"]
+                            for point in item["items"]
+                        ),
+                        3,
+                    )
+
+        except Exception:
+            pass
+
+        return None
+    
     def _request(
         self,
         method: str,
@@ -504,6 +589,16 @@ class RemoconClient:
     def get_data(self) -> RemoconData:
         """Fetch all data and return a RemoconData object."""
         raw = self._get_raw()
+        metering = {}
+
+        try:
+            metering = self.get_metering_data()
+
+        except Exception as err:
+        _LOGGER.debug(
+            "Metering request failed: %s",
+            err,
+        )
         if not isinstance(raw, dict):
             raise RemoconDataError(f"Unexpected data format from API: {type(raw)}")
             
@@ -560,6 +655,30 @@ class RemoconClient:
             flame_sensor=_optional_bool(plant.get("flameSensor")),
             system_pressure=float(pressure) if pressure is not None else None,
             flow_temperature=float(flow) if flow is not None else None,
+            energy_today=self._meter_histogram_total(
+            metering,
+            "CurrentDay",
+            ),
+            energy_yesterday=self._meter_histogram_total(
+                metering,
+                "PreviousDay",
+            ),
+            energy_month=self._meter_donut_value(
+                metering,
+                "CurrentMonth",
+            ),
+            energy_previous_month=self._meter_donut_value(
+                metering,
+                "PreviousMonth",
+            ),
+            energy_year=self._meter_histogram_total(
+                metering,
+                "CurrentYear",
+            ),
+            energy_previous_year=self._meter_histogram_total(
+                metering,
+                "PreviousYear",
+            ),
             has_room_sensor=bool(zone.get("hasRoomSensor", 0)),
         )
 
