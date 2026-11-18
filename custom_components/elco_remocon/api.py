@@ -258,6 +258,7 @@ class RemoconClient:
             response = self._request(
                 "POST",
                 f"/R2/PlantMetering/GetData/{self._gateway_id}",
+                headers=AJAX_HEADERS,
                 json={
                     "features": self._flat_features(),
                     "hasCooling": False,
@@ -602,12 +603,6 @@ class RemoconClient:
         if not isinstance(raw, dict):
             raise RemoconDataError(f"Unexpected data format from API: {type(raw)}")
 
-        _LOGGER.warning(
-            "REMOCON Flat API=%s MeteringLoaded=%s",
-            self._flat_api,
-            bool(metering),
-        )
-        
         if self._flat_api:
             return self._flat_data(raw)
         plant = raw.get("plantData") or {}
@@ -923,12 +918,21 @@ class RemoconClient:
         """Build the gateway-specific feature profile used by R2 writes."""
         return {
             **FLAT_FEATURES_PAYLOAD,
+            "hybridSys": True,
+            "isEvo2": True,
+            "hvInputOff": True,
+            "hasFireplace": True,
+            "hydraulicScheme": 1,
+            "dhwHidden": True,
+            "dhwBoilerPresent": False,
+            "hasEm20": False,
+            "hasDhwTimeProgTemperatures": 2,
             "gatewayId": self._gateway_id,
             "zones": [{
                 "num": int(self._zone),
-                "name": "Zone",
-                "roomSens": False,
-                "geofenceDeroga": True,
+                "name": "",
+                "roomSens": True,
+                "geofenceDeroga": False,
                 "virtInfo": None,
                 "isHidden": False,
             }],
