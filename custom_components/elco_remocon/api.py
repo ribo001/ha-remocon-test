@@ -270,13 +270,13 @@ class RemoconClient:
                 )
     
             return response
-        
+
         @staticmethod
         def _meter_donut_value(
             metering: dict,
             period: str,
             ) -> float | None:
-    
+
             try:
                 data = metering["data"]["asKwhRaw"]["donutData"]
     
