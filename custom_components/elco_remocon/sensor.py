@@ -113,6 +113,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_today",
         translation_key="energy_today",
+        name="Energy Today",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -122,6 +123,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_yesterday",
         translation_key="energy_yesterday",
+        name="Energy Yesterday",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -131,6 +133,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_month",
         translation_key="energy_month",
+        name="Energy This Month",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -140,6 +143,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_previous_month",
         translation_key="energy_previous_month",
+        name="Energy Previous Month",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -149,6 +153,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_year",
         translation_key="energy_year",
+        name="Energy This Year",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -158,6 +163,7 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
     ElcoSensorDescription(
         key="energy_previous_year",
         translation_key="energy_previous_year",
+        name="Energy Previous Year",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
