@@ -255,81 +255,82 @@ class RemoconClient:
         return self._session  # type: ignore[return-value]
         
     def get_metering_data(self) -> dict[str, Any]:
-        response = self._request(
-            "POST",
-            f"/R2/PlantMetering/GetData/{self._gateway_id}",
-            json={
-                "features": self._flat_features(),
-                "hasCooling": False,
-            },
-        )
-
-        if not isinstance(response, dict):
-            raise RemoconDataError(
-                "Invalid metering response"
+            response = self._request(
+                "POST",
+                f"/R2/PlantMetering/GetData/{self._gateway_id}",
+                json={
+                    "features": self._flat_features(),
+                    "hasCooling": False,
+                },
             )
-
-        return response
     
-@staticmethod
-    def _meter_donut_value(
-        metering: dict,
-        period: str,
-        ) -> float | None:
-
-        try:
-            data = metering["data"]["asKwhRaw"]["donutData"]
-
-            for item in data:
-
-                if (
-                    item.get("tab")
-                    == "ConsumedElectricity"
-                    and item.get("period")
-                    == period
-                ):
-                    return float(item["value"])
-
-        except Exception:
-            pass
-
-        return None
-        @staticmethod
-    def _meter_histogram_total(
-        metering: dict,
-        period: str,
-    ) -> float | None:
-
-        try:
-            histograms = (
-                metering["data"]
-                ["asKwhRaw"]
-                ["histogramData"]
-            )
-
-            for item in histograms:
-
-                if (
-                    item.get("tab")
-                    == "ConsumedElectricity"
-                    and item.get("period")
-                    == period
-                    and item.get("series")
-                    == "Heating"
-                ):
-
-                    return round(
-                        sum(
-                            float(point.get("y", 0))
-                            for point in item.get("items", [])
-                    ),
-                    3,
+            if not isinstance(response, dict):
+                raise RemoconDataError(
+                    "Invalid metering response"
                 )
-
-        except Exception:
-            pass
-
-        return None
+    
+            return response
+        
+        @staticmethod
+        def _meter_donut_value(
+            metering: dict,
+            period: str,
+            ) -> float | None:
+    
+            try:
+                data = metering["data"]["asKwhRaw"]["donutData"]
+    
+                for item in data:
+    
+                    if (
+                        item.get("tab")
+                        == "ConsumedElectricity"
+                        and item.get("period")
+                        == period
+                    ):
+                        return float(item["value"])
+    
+            except Exception:
+                pass
+    
+            return None
+                
+            @staticmethod
+            def _meter_histogram_total(
+                metering: dict,
+                period: str,
+            ) -> float | None:
+    
+            try:
+                histograms = (
+                    metering["data"]
+                    ["asKwhRaw"]
+                    ["histogramData"]
+                )
+    
+                for item in histograms:
+    
+                    if (
+                        item.get("tab")
+                        == "ConsumedElectricity"
+                        and item.get("period")
+                        == period
+                        and item.get("series")
+                        == "Heating"
+                    ):
+    
+                        return round(
+                            sum(
+                                float(point.get("y", 0))
+                                for point in item.get("items", [])
+                        ),
+                        3,
+                    )
+    
+            except Exception:
+                pass
+    
+            return None
     
     def _request(
         self,
