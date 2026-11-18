@@ -271,35 +271,35 @@ class RemoconClient:
     
             return response
 
+    @staticmethod
+    def _meter_donut_value(
+        metering: dict,
+        period: str,
+        ) -> float | None:
+
+        try:
+            data = metering["data"]["asKwhRaw"]["donutData"]
+    
+            for item in data:
+    
+                if (
+                    item.get("tab")
+                    == "ConsumedElectricity"
+                    and item.get("period")
+                    == period
+                ):
+                    return float(item["value"])
+    
+        except Exception:
+            pass
+    
+        return None
+                
         @staticmethod
-        def _meter_donut_value(
+        def _meter_histogram_total(
             metering: dict,
             period: str,
-            ) -> float | None:
-
-            try:
-                data = metering["data"]["asKwhRaw"]["donutData"]
-    
-                for item in data:
-    
-                    if (
-                        item.get("tab")
-                        == "ConsumedElectricity"
-                        and item.get("period")
-                        == period
-                    ):
-                        return float(item["value"])
-    
-            except Exception:
-                pass
-    
-            return None
-                
-            @staticmethod
-            def _meter_histogram_total(
-                metering: dict,
-                period: str,
-            ) -> float | None:
+        ) -> float | None:
     
             try:
                 histograms = (
@@ -307,29 +307,29 @@ class RemoconClient:
                     ["asKwhRaw"]
                     ["histogramData"]
                 )
-    
+
                 for item in histograms:
-    
+
                     if (
                         item.get("tab")
                         == "ConsumedElectricity"
-                        and item.get("period")
-                        == period
-                        and item.get("series")
-                        == "Heating"
+                       and item.get("period")
+                       == period
+                       and item.get("series")
+                       == "Heating"
                     ):
     
                         return round(
                             sum(
                                 float(point.get("y", 0))
                                 for point in item.get("items", [])
-                        ),
-                        3,
-                    )
+                            ),
+                            3,
+                        )
     
             except Exception:
                 pass
-    
+
             return None
     
     def _request(
