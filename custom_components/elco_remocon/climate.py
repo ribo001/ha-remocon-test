@@ -55,7 +55,7 @@ class ElcoClimateEntity(CoordinatorEntity[ElcoRemoconCoordinator], ClimateEntity
 
     _attr_has_entity_name = True
     _attr_translation_key = "elco_heat_pump"
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.PRESET_MODE
@@ -80,7 +80,7 @@ class ElcoClimateEntity(CoordinatorEntity[ElcoRemoconCoordinator], ClimateEntity
         self._gw_id = gw_id
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return current temperature."""
         data = self.coordinator.data
         if data.room_temp > 0:
@@ -89,7 +89,7 @@ class ElcoClimateEntity(CoordinatorEntity[ElcoRemoconCoordinator], ClimateEntity
         return data.desired_temp if data.desired_temp > 0 else None
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return target temperature."""
         data = self.coordinator.data
         return data.comfort_temp if data.comfort_temp > 0 else None
