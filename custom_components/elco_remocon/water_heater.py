@@ -87,7 +87,7 @@ class ElcoWaterHeater(CoordinatorEntity[ElcoRemoconCoordinator], WaterHeaterEnti
 
     _attr_has_entity_name = True
     _attr_translation_key = "dhw_water_heater"
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = (
         WaterHeaterEntityFeature.TARGET_TEMPERATURE
         | WaterHeaterEntityFeature.OPERATION_MODE
@@ -117,13 +117,13 @@ class ElcoWaterHeater(CoordinatorEntity[ElcoRemoconCoordinator], WaterHeaterEnti
         }
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current DHW storage temperature."""
         data = self.coordinator.data
         return data.dhw_temp if data.dhw_temp > 0 else None
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the target DHW comfort temperature."""
         data = self.coordinator.data
         return data.dhw_comfort_temp if data.dhw_comfort_temp and data.dhw_comfort_temp > 0 else None
