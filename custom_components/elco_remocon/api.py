@@ -809,12 +809,30 @@ class RemoconClient:
                 if value("ChFlowSetpointTemp") is not None
                 else None
             ),
-            energy_today=123.45,
-            energy_yesterday=456.78,
-            energy_month=789.01,
-            energy_previous_month=111.11,
-            energy_year=2222.22,
-            energy_previous_year=3333.33,
+            energy_today=RemoconClient._meter_histogram_total(
+                metering,
+                "CurrentDay",
+            ),
+            energy_yesterday=RemoconClient._meter_histogram_total(
+                metering,
+                "PreviousDay",
+            ),
+            energy_month=RemoconClient._meter_donut_value(
+                metering,
+                "CurrentMonth",
+            ),
+            energy_previous_month=RemoconClient._meter_donut_value(
+                metering,
+                "PreviousMonth",
+            ),
+            energy_year=RemoconClient._meter_histogram_total(
+                metering,
+                "CurrentYear",
+            ),
+            energy_previous_year=RemoconClient._meter_histogram_total(
+                metering,
+                "PreviousYear",
+            ),
             has_room_sensor=value("ZoneMeasuredTemp") is not None,
         )
 
