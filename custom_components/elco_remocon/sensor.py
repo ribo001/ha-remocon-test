@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory, UnitOfPressure, UnitOfTemperature
+from homeassistant.const import EntityCategory, UnitOfPressure, UnitOfTemperature, UnitOfEnergy
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
@@ -109,6 +109,60 @@ SENSORS: tuple[ElcoSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         value_fn=lambda d: d.dhw_reduced_temp,
         exists_fn=lambda d: d.dhw_reduced_temp is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_today",
+        translation_key="energy_today",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_today,
+        exists_fn=lambda d: d.energy_today is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_yesterday",
+        translation_key="energy_yesterday",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_yesterday,
+        exists_fn=lambda d: d.energy_yesterday is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_month",
+        translation_key="energy_month",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_month,
+        exists_fn=lambda d: d.energy_month is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_previous_month",
+        translation_key="energy_previous_month",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_previous_month,
+        exists_fn=lambda d: d.energy_previous_month is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_year",
+        translation_key="energy_year",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_year,
+        exists_fn=lambda d: d.energy_year is not None,
+    ),
+    ElcoSensorDescription(
+        key="energy_previous_year",
+        translation_key="energy_previous_year",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        value_fn=lambda d: d.energy_previous_year,
+        exists_fn=lambda d: d.energy_previous_year is not None,
     ),
 )
 
