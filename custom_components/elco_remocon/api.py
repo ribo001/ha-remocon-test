@@ -255,22 +255,22 @@ class RemoconClient:
         return self._session  # type: ignore[return-value]
         
     def get_metering_data(self) -> dict[str, Any]:
-            response = self._request(
-                "POST",
-                f"/R2/PlantMetering/GetData/{self._gateway_id}",
-                headers=AJAX_HEADERS,
-                json={
-                    "features": self._flat_features(),
-                    "hasCooling": False,
-                },
+        response = self._request(
+            "POST",
+            f"/R2/PlantMetering/GetData/{self._gateway_id}",
+            headers=AJAX_HEADERS,
+            json={
+                "features": self._flat_features(),
+                "hasCooling": False,
+            },
+        )
+    
+        if not isinstance(response, dict):
+            raise RemoconDataError(
+                "Invalid metering response"
             )
     
-            if not isinstance(response, dict):
-                raise RemoconDataError(
-                    "Invalid metering response"
-                )
-    
-            return response
+        return response
 
     @staticmethod
     def _meter_donut_value(
@@ -296,40 +296,40 @@ class RemoconClient:
     
         return None
                 
-        @staticmethod
-        def _meter_histogram_total(
-            metering: dict,
-            period: str,
-        ) -> float | None:
+    @staticmethod
+    def _meter_histogram_total(
+        metering: dict,
+        period: str,
+    ) -> float | None:
     
-            try:
-                histograms = (
-                    metering["data"]
-                    ["asKwhRaw"]
-                    ["histogramData"]
-                )
+        try:
+            histograms = (
+                metering["data"]
+                ["asKwhRaw"]
+                ["histogramData"]
+            )
 
-                for item in histograms:
+            for item in histograms:
 
-                    if (
-                        item.get("tab")
-                        == "ConsumedElectricity"
-                       and item.get("period")
-                       == period
-                       and item.get("series")
-                       == "Heating"
-                    ):
+                if (
+                    item.get("tab")
+                    == "ConsumedElectricity"
+                   and item.get("period")
+                   == period
+                   and item.get("series")
+                   == "Heating"
+                ):
     
-                        return round(
-                            sum(
-                                float(point.get("y", 0))
-                                for point in item.get("items", [])
-                            ),
-                            3,
-                        )
+                    return round(
+                        sum(
+                            float(point.get("y", 0))
+                            for point in item.get("items", [])
+                        ),
+                        3,
+                    )
     
-            except Exception:
-                pass
+        except Exception:
+            pass
 
             return None
     
@@ -604,7 +604,7 @@ class RemoconClient:
             raise RemoconDataError(f"Unexpected data format from API: {type(raw)}")
 
         if self._flat_api:
-            return self._flat_data(raw)
+            return self._flat_data(raw, metering)
         plant = raw.get("plantData") or {}
         zone = raw.get("zoneData") or {}
 
@@ -684,7 +684,10 @@ class RemoconClient:
         )
 
     @staticmethod
-    def _flat_data(items: dict[str, Any]) -> RemoconData:
+    def _flat_data(
+        items: dict[str, Any],
+        metering: dict[str, Any],
+    ) -> RemoconData:
         def value(key: str, attr: str = "value") -> Any:
             item = items.get(key, {})
             return item.get(attr) if isinstance(item, dict) else None
@@ -806,6 +809,12 @@ class RemoconClient:
                 if value("ChFlowSetpointTemp") is not None
                 else None
             ),
+            energy_today=123.45,
+            energy_yesterday=456.78,
+            energy_month=789.01,
+            energy_previous_month=111.11,
+            energy_year=2222.22,
+            energy_previous_year=3333.33,
             has_room_sensor=value("ZoneMeasuredTemp") is not None,
         )
 
