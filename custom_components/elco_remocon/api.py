@@ -255,8 +255,6 @@ class RemoconClient:
         return self._session  # type: ignore[return-value]
         
     def get_metering_data(self) -> dict[str, Any]:
-        """Read PlantMetering data."""
-
         response = self._request(
             "POST",
             f"/R2/PlantMetering/GetData/{self._gateway_id}",
@@ -266,12 +264,13 @@ class RemoconClient:
             },
         )
 
-    if not isinstance(response, dict):
-        raise RemoconDataError(
-            "Invalid metering response"
-        )
+        if not isinstance(response, dict):
+            raise RemoconDataError(
+                "Invalid metering response"
+            )
 
-    return response
+        return response
+    
 @staticmethod
     def _meter_donut_value(
         metering: dict,
@@ -321,11 +320,11 @@ class RemoconClient:
 
                     return round(
                         sum(
-                            point["y"]
-                            for point in item["items"]
-                        ),
-                        3,
-                    )
+                            float(point.get("y", 0))
+                            for point in item.get("items", [])
+                    ),
+                    3,
+                )
 
         except Exception:
             pass
@@ -595,13 +594,19 @@ class RemoconClient:
             metering = self.get_metering_data()
 
         except Exception as err:
-        _LOGGER.debug(
-            "Metering request failed: %s",
-            err,
-        )
+            _LOGGER.debug(
+                "Metering request failed: %s",
+                err,
+            )
         if not isinstance(raw, dict):
             raise RemoconDataError(f"Unexpected data format from API: {type(raw)}")
-            
+
+        _LOGGER.warning(
+            "REMOCON Flat API=%s MeteringLoaded=%s",
+            self._flat_api,
+            bool(metering),
+        )
+        
         if self._flat_api:
             return self._flat_data(raw)
         plant = raw.get("plantData") or {}
